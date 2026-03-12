@@ -57,12 +57,9 @@ Copies of internal scripts used at KCRHA that other communities may find helpful
 - Scaffolds each episode into one row per calendar month, enabling flexible monthly/quarterly/yearly reporting
 - Flags whether each episode overlapped with a Coordinated Entry enrollment and whether a CE assessment was present
 - Calculates `AgedOutOfYYA` — the date a person turned 25 if that birthday falls within the episode
-- Joins in client names and unique identifiers
 - Outputs a Parquet file to Azure Blob Storage
 
 **Output:** One row per person per episode per calendar month. Designed to feed by-name lists, performance dashboards, and system flow metrics.
-
-> **Note:** The output of this script includes PII (client first/last names and PersonalIDs). Ensure appropriate access controls are applied to the destination storage container.
 
 ---
 
