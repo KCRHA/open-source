@@ -63,9 +63,26 @@ Copies of internal scripts used at KCRHA that other communities may find helpful
 
 ---
 
+### [Veteran_By_Name_List.ipynb](Veteran_By_Name_List.ipynb)
+
+**Purpose:** Produces the weekly Veteran By Name List (VBNL) workbook used for veteran homelessness case conferencing — the client-facing report built on top of the analytic tables above.
+
+**What it does:**
+- Reads `episode_systemwide`, `event_systemwide`, `all_program_enrollments`, and client demographics/program attribute Parquet files from Azure Blob Storage, filtered to veterans only
+- Pulls client identity, VBNL form assessment, entry-screen/health, CE-assessment, file-attachment, and active CE-enrollment data from Looker, with retry/backoff on timeouts
+- Joins everything into a per-veteran base table with computed fields: household size, chronic homelessness status, active CE enrollment, "will be inactive" projection, and household income
+- Builds a five-tab Excel workbook: **Active**, **Recently Inactive**, **No CE Engagement**, **Newly Assessed**, and **Flagged**
+- Applies header branding/currency formatting and a summary cover tab with active/inactive counts
+- Password-protects the workbook (`msoffcrypto-tool`) and uploads it to SharePoint via the Microsoft Graph API
+
+**Output:** A password-protected, multi-tab Excel workbook distributed to the veteran homelessness workgroup — not a Parquet analytic table.
+
+---
+
 ## Security Notes
 
 - All credentials and environment-specific values are templated as `[[PLACEHOLDER]]` — replace with your organization's values before use.
 - Production deployments use Azure Key Vault for secrets (`TokenLibrary.getSecretWithLS`). The development path uses `DefaultAzureCredential` (requires `az login`).
 - Output Parquet files are written with `overwrite=True` — each pipeline run replaces the prior output. Verify destination paths before running in production.
 - All Looker queries use `limit: -1` (no row cap). On very large HMIS datasets, monitor memory usage.
+- `Veteran_By_Name_List.ipynb` pulls client names and full SSNs from Looker and writes them into the workbook — this is expected for veteran identity matching, but the output file must stay password-protected and access-restricted. SharePoint app credentials (`SHAREPOINT_CLIENT_ID_SECRET`, etc.) and the workbook password are templated the same way as other secrets — replace with your own Key Vault secret names.
